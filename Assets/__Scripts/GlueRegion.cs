@@ -9,15 +9,21 @@ public class GlueRegion : MonoBehaviour {
 
     public  void OnTriggerEnter2D(Collider2D col)
     {
-        coin.Add(col.gameObject);
-        Rigidbody2D coinRB = col.GetComponent<Rigidbody2D>();
-        coinRB.drag += zoneDragValue;
+        if (col.tag == "Coin")
+        {
+            coin.Add(col.gameObject);
+            Rigidbody2D coinRB = col.GetComponent<Rigidbody2D>();
+            coinRB.drag += zoneDragValue;
+        }
     }
 
     public void OnTriggerExit2D(Collider2D col)
     {
-        coin.Remove(col.gameObject);
-        Rigidbody2D coinRB = col.GetComponent<Rigidbody2D>();
-        coinRB.drag -= zoneDragValue;
+        if (col.tag == "Coin")
+        {
+            coin.Remove(col.gameObject);
+            Rigidbody2D coinRB = col.GetComponent<Rigidbody2D>();
+            coinRB.drag -= zoneDragValue;
+        }
     }
 }

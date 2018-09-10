@@ -5,28 +5,31 @@ using UnityEngine;
 public class NeutralZone : MonoBehaviour {
 
     GameplayController gameplayController;
+    Coin coin;
 
 	// Use this for initialization
 	void Start () {
         gameplayController = FindObjectOfType <GameplayController>();
-	}
+        coin = this.GetComponent<Coin>();
+    }
 	
 	public void OnTriggerEnter2D(Collider2D collider)
     {
         if(collider.tag == "Coin")
         {
-            CoinPositionChecker coinTrait = collider.gameObject.GetComponent<CoinPositionChecker>();
+            Coin coinTrait = collider.gameObject.GetComponent<Coin>();
+            CoinPositionChecker coinPosition = collider.gameObject.GetComponent<CoinPositionChecker>();
 
             if (coinTrait.player1Coin)
             {
-                coinTrait.coinInNeutralZone = true;
+                coin.coinInNeutralZone = true;
                 Debug.Log("Increasing player 1's score");
                 gameplayController.neutralZoneScorePL1 += 3;
                 Debug.Log("Player 1 score : " + gameplayController.scorePL1.ToString());
             }
             else if (coinTrait.player2Coin)
             {
-                coinTrait.coinInNeutralZone = true;
+                coin.coinInNeutralZone = true;
                 Debug.Log("Increasing player 2's score");
                 gameplayController.neutralZoneScorePL2 += 3;
             }
@@ -42,16 +45,16 @@ public class NeutralZone : MonoBehaviour {
     {
         if (collider.tag == "Coin")
         {
-            CoinPositionChecker coinTrait = collider.gameObject.GetComponent<CoinPositionChecker>();
-
+            Coin coinTrait = collider.gameObject.GetComponent<Coin>();
+            CoinPositionChecker coinPosition = collider.gameObject.GetComponent<CoinPositionChecker>();
             if (coinTrait.player1Coin)
             {
-                coinTrait.coinInNeutralZone = false;
+                coin.coinInNeutralZone = false;
                 gameplayController.neutralZoneScorePL1 -= 3;
             }
             else if (coinTrait.player2Coin)
             {
-                coinTrait.coinInNeutralZone = false;
+                coin.coinInNeutralZone = false;
                 gameplayController.neutralZoneScorePL2 -= 3;
             }
             else

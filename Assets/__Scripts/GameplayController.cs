@@ -13,8 +13,9 @@ public class GameplayController : MonoBehaviour {
     public Transform player1OwnZone;
     public Transform player2OwnZone;
 
-    public GameObject[] spawnObjects_PL1;
-    public GameObject[] spawnObjects_PL2;
+    public static int size;
+    public static GameObject[] spawnObjects_PL1 = new GameObject[5];
+    public static GameObject[] spawnObjects_PL2 = new GameObject[5];
     public GameObject currentObjectInMotion;
     public GameObject gameHelpPanel;
     public GameObject pointsPanel;
@@ -22,10 +23,15 @@ public class GameplayController : MonoBehaviour {
     public GameObject gameOverPanel;
     public GameObject glueRegion;
     public GameObject greaseRegion;
+    public GameObject player1AimAssist;
+    public GameObject player2AimAssist;
     public List<GameObject> placedCoins;
 
     public TextMeshProUGUI pl1Score, pl2Score, pl1Moves, pl2Moves;
     public TextMeshProUGUI gameOverPanelScorePL1, gameOverPanelScorePL2;
+
+    public BoxCollider2D colliderPlayer1;
+    public BoxCollider2D colliderPlayer2;
 
     public static int turnCount;
     public int turnCountPL1;
@@ -43,7 +49,31 @@ public class GameplayController : MonoBehaviour {
     public static bool modeAI = false;
     public static bool player1Active = false;
     public static bool player2Active = false;
+    public static bool allCoinsStopped = true;
     public bool helpRead = false;
+    private bool requireAimAssist = false;
+
+    // MONK COIN
+    private bool monkCoin = false;
+    public bool converting = false;
+
+    // BOMB COIN
+    private bool bombCoin = false;
+    public bool exploding = false;
+
+    // GHOST COIN
+    private bool ghostCoin = false;
+
+    // TELEPORT  COIN
+    private bool teleportCoin = false;
+    public bool teleported = false;
+
+    // GLUE POWERUP
+    public bool gluePowerup = false;
+    public bool powerUpUsed = false;
+
+    // GREASE POWERUP
+    public bool greasePowerup = false;
 
     // AI related variables
     public Vector2 destinationVectorAI;
@@ -58,6 +88,11 @@ public class GameplayController : MonoBehaviour {
         pl2Score.text = "SCORE : 0";
         scorePL1 = scorePL2 = 0;
         placedCoins = new List<GameObject>();
+        for (int i = 0; i < spawnObjects_PL1.Length; i++)
+        {
+            Debug.Log("List 1 , Element " + i + "    Coin : " + spawnObjects_PL1[i].name);
+            Debug.Log("List 2 , Element " + i + "    Coin : " + spawnObjects_PL2[i].name);
+        }    
     }
 
 	void Update () {        
@@ -82,53 +117,149 @@ public class GameplayController : MonoBehaviour {
         {
             if (!Turn && playerTurnEnded == true)
             {
+                Debug.Log("Player 1 TURN!");
                 player1Active = true;
-                player2Active = false;
-                // Instantiate random coin for player 1
+                player2Active = false;                
                 playerTurnEnded = false;
                 Turn = true;  // Set the next turn for player 2.
+
+                colliderPlayer1.gameObject.GetComponent<BoxCollider2D>().enabled = false;     // Deactivate the launch area collider for player 1.
+                colliderPlayer2.gameObject.GetComponent<BoxCollider2D>().enabled = false;      // Activate the launch area collider for player 2.
+
+                // Instantiate random coin for player 1
                 currentObjectInMotion =  Instantiate(spawnObjects_PL1[Random.Range(0, spawnObjects_PL1.Length)],
                                                     player1SpawnPos.position, 
                                                     Quaternion.identity,
-                                                    player1SpawnPos) as GameObject;
-                
+                                                    player1SpawnPos) as GameObject;             
+                CheckCoinType();
+
+                if (requireAimAssist && currentObjectInMotion != null)
+                {
+                    player1AimAssist.SetActive(true);
+                    player1AimAssist.GetComponent<AimAssist>().objectInMotion = currentObjectInMotion;
+                }
+
                 yield return new WaitUntil(() => playerTurnStarted == true);
                 turnCountPL1--;
+                yield return new WaitUntil(() => playerTurnEnded == true);
+                if (requireAimAssist)
+                {
+                    player1AimAssist.GetComponent<AimAssist>().gameObject.SetActive(false);
+                }
             }
             else if (Turn && playerTurnEnded == true)
             {
+                Debug.Log("Player 2 TURN!");
                 player1Active = false;
-                player2Active = true;
-                // Instantiate random coin for player 2
+                player2Active = true;                
                 playerTurnEnded = false;
                 Turn = false;  // Set the next turn for player 1.
+
+                colliderPlayer2.gameObject.GetComponent<BoxCollider2D>().enabled = false;    // Deactivate the launch area collider for player 2.
+                colliderPlayer1.gameObject.GetComponent<BoxCollider2D>().enabled = false;   // Activate the launch area collider for player 1.
+
+                // Instantiate random coin for player 2
                 currentObjectInMotion = Instantiate(spawnObjects_PL2[Random.Range(0, spawnObjects_PL2.Length)],
                                                     player2SpawnPos.position, 
                                                     Quaternion.identity, 
                                                     player2SpawnPos) as GameObject;
+
+                CheckCoinType();
+
+                if (requireAimAssist && currentObjectInMotion != null)
+                {
+                    player2AimAssist.SetActive(true);
+                    player2AimAssist.GetComponent<AimAssist>().objectInMotion = currentObjectInMotion;
+                }
                 
                 yield return new WaitUntil(() => playerTurnStarted == true);
                 turnCountPL2--;
+                yield return new WaitUntil(() => playerTurnEnded == true);
+                if (requireAimAssist)
+                {
+                    player2AimAssist.GetComponent<AimAssist>().gameObject.SetActive(false);
+                }
             }
-            yield return new WaitUntil(() => playerSwipeStarted == true);               
-            //Debug.Log("Waiting for player turn to end !!!");
-            yield return new WaitUntil(()=> playerTurnEnded == true);
-            scorePL1 = scorePL2 = 0;
-            currentObjectInMotion.GetComponent<CoinPositionChecker>().CheckScoreValue(); // Check the score value for the current coin that was in motion.
-            foreach(GameObject coins in placedCoins)
-            {
-                coins.GetComponent<CoinPositionChecker>().CheckScoreValue();
-            }
-            scorePL1 += neutralZoneScorePL1;
-            scorePL2 += neutralZoneScorePL2;
-            currentObjectInMotion.GetComponent<CoinMovement>().enabled = false;
-            if (currentObjectInMotion != null)
+
+            // SCORE CALCULATIONS
+            if (currentObjectInMotion != null && !monkCoin && !bombCoin && !gluePowerup && !greasePowerup)
             {
                 placedCoins.Add(currentObjectInMotion);
             }
-            playerSwipeStarted = false;
+            foreach(GameObject coin in placedCoins)
+            {
+                coin.GetComponent<CoinPositionChecker>().coinStopped = false;
+            }
+            allCoinsStopped = false;
+            Debug.Log("Waiting for all coins to stop");
+            yield return new WaitUntil(() => allCoinsStopped == true);
+            Debug.Log("All coins have stopped");
+
+            // MONK COIN HANDLING
+            if(monkCoin)
+            {
+                monkCoin = false;
+                yield return new WaitUntil(() => converting == false);
+                Destroy(currentObjectInMotion);
+            }
+
+            // BOMB COIN HANDLING
+            if (bombCoin)
+            {
+                bombCoin = false;
+                Debug.Log("Waiting until explosion is complete");                
+                yield return new WaitUntil(() => exploding == false);
+                yield return new WaitForSeconds(1.5f);
+                Destroy(currentObjectInMotion);
+                //Debug.Log("Bomb coin destroyed");
+            }
+
+            // GHOST COIN HANDLING
+            if (ghostCoin)
+            {
+                ghostCoin = false;
+                //currentObjectInMotion.GetComponent<Ghost>().ResetCollision();
+            }
+
+            // TELEPORT COIN HANDLING
+            if (teleportCoin)
+            {
+                teleportCoin = false;
+                yield return new WaitUntil(() => teleported == true);
+                teleported = false;
+                Debug.Log("Teleportation handled !!");
+            }
+
+            // GLUE COIN HANDLING
+            if (gluePowerup)
+            {
+                gluePowerup = false;
+                yield return new WaitUntil(() => powerUpUsed == true);
+                powerUpUsed = false;
+                Debug.Log("Glue Powerup Used");
+            }
+
+            // GREASE COIN HANDLING
+            if (greasePowerup)
+            {
+                greasePowerup = false;
+                yield return new WaitUntil(() => powerUpUsed == true);
+                powerUpUsed = false;
+                Debug.Log("Glue Powerup Used");
+            }
+
+
+            Debug.Log("Here");
+            if (currentObjectInMotion != null)
+            {
+                currentObjectInMotion.GetComponent<CoinMovement>().enabled = false;
+            }
+            
+                        
+            // SCORE CALCULATIONS DONE. UPDATE THE VALUES IN THE HUD.
             UpdateHUD();                      
             turnCount--;
+            Debug.Log("CYCLE COMPLETE");
             if (turnCount == 0 && playerTurnEnded == true)
             {
                 gameOverPanel.layer = 31;
@@ -190,11 +321,11 @@ public class GameplayController : MonoBehaviour {
 
             //Score Calculations
             scorePL1 = scorePL2 = 0;
-            currentObjectInMotion.GetComponent<CoinPositionChecker>().CheckScoreValue(); // Check the score value for the current coin that was in motion.
-            foreach (GameObject coins in placedCoins)
-            {
-                coins.GetComponent<CoinPositionChecker>().CheckScoreValue();
-            }
+            //currentObjectInMotion.GetComponent<CoinPositionChecker>().CheckScoreValue(); // Check the score value for the current coin that was in motion.
+            //foreach (GameObject coins in placedCoins)
+            //{
+            //    coins.GetComponent<CoinPositionChecker>().CheckScoreValue();
+            //}
             scorePL1 += neutralZoneScorePL1;
             scorePL2 += neutralZoneScorePL2;
             currentObjectInMotion.GetComponent<CoinMovement>().enabled = false;
@@ -241,5 +372,69 @@ public class GameplayController : MonoBehaviour {
     {
         destinationVectorAI = new Vector2(Random.Range(-2.5f, 2.5f), Random.Range(-3.5f, -2f));
         coin.GetComponent<Rigidbody2D>().AddForce(destinationVectorAI * 10f, ForceMode2D.Impulse) ;
+    }
+
+    public int GetCurrentUser()
+    {
+        int id = 0;
+        if (player1Active)
+        {
+            id = 1;
+        }
+        else if(player2Active)
+        {
+            id = 2;
+        }
+        return id;
+    }
+
+    public void CheckCoinType()
+    {
+        switch (currentObjectInMotion.GetComponent<Coin>().CoinType)
+        {
+            case "Monk":
+                Debug.Log("The current coin is a monk coin");
+                currentObjectInMotion.GetComponentInChildren<Monk>().Initiate();
+                monkCoin = true;
+                requireAimAssist = true;
+                break;
+
+            case "Bomb":
+                Debug.Log("The current coin is a bomb coin");
+                currentObjectInMotion.GetComponentInChildren<Bomb>().Initiate();
+                bombCoin = true;
+                requireAimAssist = true;
+                break;
+
+            case "Ghost":
+                Debug.Log("The current coin is a ghost coin");
+                ghostCoin = true;
+                requireAimAssist = true;
+                break;
+
+            case "Teleport":
+                Debug.Log("The current coin is a teleport coin");
+                teleportCoin = true;
+                requireAimAssist = false;
+                break;
+
+            case "Glue":
+                Debug.Log("The current coin is a GLUE powerup");
+                gluePowerup = true;
+                requireAimAssist = true;
+                break;
+
+            case "Grease":
+                Debug.Log("The current coin is a GREASE powerup");
+                greasePowerup = true;
+                requireAimAssist = true;
+                break;
+
+            default:
+                requireAimAssist = true;
+                Debug.Log("The current coin is a simple coin");
+                break;
+        }
+        
     }
 }

@@ -7,11 +7,11 @@ using UnityEngine.SceneManagement;
 public class MainMenuController : MonoBehaviour {
 
     public GameObject movesCountPanel;
+    public GameObject inventoryPanel;
     public TMP_InputField movesCount;     
 
     void start()
-    {
-        movesCountPanel.SetActive(false);
+    {        
     }
 
     public void OnClickPlay()
@@ -45,8 +45,8 @@ public class MainMenuController : MonoBehaviour {
             int moves = int.Parse(movesCount.text);
             GameplayController.turnCount = moves * 2;
         }
-
-        SceneManager.LoadSceneAsync("Gameplay");
+        LoaadInventoryPanel();
+        //SceneManager.LoadSceneAsync("Gameplay");
     }
 
     public void OnClickAI()
@@ -62,5 +62,19 @@ public class MainMenuController : MonoBehaviour {
         LeanTween.scale(movesCountPanel, Vector3.zero, 0.2f);
         LeanTween.delayedCall(movesCountPanel, 0.3f, () => movesCountPanel.SetActive(false));
         
+    }
+
+    public void TestMode()
+    {
+        // LOAD TEST CONFIGURATION : 5 MOVES EACH PLAYER.
+        GameplayController.turnCount = 10;
+        GameplayController.modeAI = false;
+        SceneManager.LoadSceneAsync("Gameplay");
+    }
+
+    public void LoaadInventoryPanel()
+    {
+        inventoryPanel.SetActive(true);
+        LeanTween.scale(inventoryPanel, Vector3.one, 0.2f);
     }
 }
