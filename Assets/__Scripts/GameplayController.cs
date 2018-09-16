@@ -50,8 +50,9 @@ public class GameplayController : MonoBehaviour {
     public static bool player1Active = false;
     public static bool player2Active = false;
     public static bool allCoinsStopped = true;
+    public static bool currentCoinLaunched = false;
     public bool helpRead = false;
-    private bool requireAimAssist = false;
+    public bool requireAimAssist = false;
 
     // MONK COIN
     private bool monkCoin = false;
@@ -95,9 +96,6 @@ public class GameplayController : MonoBehaviour {
         }    
     }
 
-	void Update () {        
-    }
-
     public void StartGameCoroutine() {
         if(helpRead && !modeAI)
         {
@@ -117,7 +115,7 @@ public class GameplayController : MonoBehaviour {
         {
             if (!Turn && playerTurnEnded == true)
             {
-                Debug.Log("Player 1 TURN!");
+                //Debug.Log("Player 1 TURN!");
                 player1Active = true;
                 player2Active = false;                
                 playerTurnEnded = false;
@@ -130,7 +128,9 @@ public class GameplayController : MonoBehaviour {
                 currentObjectInMotion =  Instantiate(spawnObjects_PL1[Random.Range(0, spawnObjects_PL1.Length)],
                                                     player1SpawnPos.position, 
                                                     Quaternion.identity,
-                                                    player1SpawnPos) as GameObject;             
+                                                    player1SpawnPos) as GameObject;
+
+                monkCoin = bombCoin = gluePowerup = greasePowerup = teleportCoin = false;
                 CheckCoinType();
 
                 if (requireAimAssist && currentObjectInMotion != null)
@@ -145,11 +145,12 @@ public class GameplayController : MonoBehaviour {
                 if (requireAimAssist)
                 {
                     player1AimAssist.GetComponent<AimAssist>().gameObject.SetActive(false);
+                    player1AimAssist.GetComponent<AimAssist>().objectInMotion = null;
                 }
             }
             else if (Turn && playerTurnEnded == true)
             {
-                Debug.Log("Player 2 TURN!");
+                //Debug.Log("Player 2 TURN!");
                 player1Active = false;
                 player2Active = true;                
                 playerTurnEnded = false;
@@ -164,6 +165,7 @@ public class GameplayController : MonoBehaviour {
                                                     Quaternion.identity, 
                                                     player2SpawnPos) as GameObject;
 
+                monkCoin = bombCoin = gluePowerup = greasePowerup = teleportCoin = false;
                 CheckCoinType();
 
                 if (requireAimAssist && currentObjectInMotion != null)
@@ -178,25 +180,38 @@ public class GameplayController : MonoBehaviour {
                 if (requireAimAssist)
                 {
                     player2AimAssist.GetComponent<AimAssist>().gameObject.SetActive(false);
+                    player2AimAssist.GetComponent<AimAssist>().objectInMotion = null;
                 }
             }
 
-            // SCORE CALCULATIONS
-            if (currentObjectInMotion != null && !monkCoin && !bombCoin && !gluePowerup && !greasePowerup)
+
+            if (currentObjectInMotion != null && !monkCoin && !bombCoin && !gluePowerup && !greasePowerup && !teleportCoin)
             {
                 placedCoins.Add(currentObjectInMotion);
             }
-            foreach(GameObject coin in placedCoins)
+
+            if (requireAimAssist)
             {
-                coin.GetComponent<CoinPositionChecker>().coinStopped = false;
+                yield return new WaitUntil(() => currentCoinLaunched == true);  // THIS IS SET TO TRUE ONLY WHEN A COIN IN LAUNCHED. VELOCITY => RIGIDBODY.
+                currentCoinLaunched = false;
             }
-            allCoinsStopped = false;
-            Debug.Log("Waiting for all coins to stop");
-            yield return new WaitUntil(() => allCoinsStopped == true);
-            Debug.Log("All coins have stopped");
+
+            #region -- COIN MOVEMENT STOP CHECK --
+            //Debug.Log("Checking when all coins have stopped");            
+            foreach (GameObject coin in placedCoins)
+            {
+                if(coin.GetComponent<Coin>().stopState == false)
+                {
+                    yield return new WaitUntil(() => coin.GetComponent<Coin>().stopState == true);
+                }
+            }
+            //Debug.Log("All coins have stopped");
+            #endregion
+
+            #region -- SPECIAL COINS HANDLING --
 
             // MONK COIN HANDLING
-            if(monkCoin)
+            if (monkCoin)
             {
                 monkCoin = false;
                 yield return new WaitUntil(() => converting == false);
@@ -218,7 +233,6 @@ public class GameplayController : MonoBehaviour {
             if (ghostCoin)
             {
                 ghostCoin = false;
-                //currentObjectInMotion.GetComponent<Ghost>().ResetCollision();
             }
 
             // TELEPORT COIN HANDLING
@@ -248,18 +262,34 @@ public class GameplayController : MonoBehaviour {
                 Debug.Log("Glue Powerup Used");
             }
 
+            #endregion
 
-            Debug.Log("Here");
             if (currentObjectInMotion != null)
             {
                 currentObjectInMotion.GetComponent<CoinMovement>().enabled = false;
             }
-            
-                        
-            // SCORE CALCULATIONS DONE. UPDATE THE VALUES IN THE HUD.
+
+            #region -- SCORE CALCULATIONS --
+            // RESETTING THE SCORE TO CALCULATE BASED ON NEW POSITIONS OF THE COINS.
+            scorePL1 = scorePL2 = 0;
+
+            foreach (GameObject coin in placedCoins)
+            {
+                if (coin.GetComponent<Coin>().player1Coin)
+                {
+                    scorePL1 += coin.GetComponent<Coin>().scoreValue;
+                }
+                else if (coin.GetComponent<Coin>().player2Coin)
+                {
+                    scorePL2 += coin.GetComponent<Coin>().scoreValue;
+                }
+            }
+            #endregion
+
             UpdateHUD();                      
             turnCount--;
-            Debug.Log("CYCLE COMPLETE");
+            
+            //Debug.Log("CYCLE COMPLETE");
             if (turnCount == 0 && playerTurnEnded == true)
             {
                 gameOverPanel.layer = 31;
@@ -321,11 +351,7 @@ public class GameplayController : MonoBehaviour {
 
             //Score Calculations
             scorePL1 = scorePL2 = 0;
-            //currentObjectInMotion.GetComponent<CoinPositionChecker>().CheckScoreValue(); // Check the score value for the current coin that was in motion.
-            //foreach (GameObject coins in placedCoins)
-            //{
-            //    coins.GetComponent<CoinPositionChecker>().CheckScoreValue();
-            //}
+           
             scorePL1 += neutralZoneScorePL1;
             scorePL2 += neutralZoneScorePL2;
             currentObjectInMotion.GetComponent<CoinMovement>().enabled = false;

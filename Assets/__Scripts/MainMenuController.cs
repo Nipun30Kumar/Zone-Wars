@@ -46,6 +46,7 @@ public class MainMenuController : MonoBehaviour {
             GameplayController.turnCount = moves * 2;
         }
         LoaadInventoryPanel();
+        OnClickClose();
         //SceneManager.LoadSceneAsync("Gameplay");
     }
 
@@ -60,8 +61,7 @@ public class MainMenuController : MonoBehaviour {
     public void OnClickClose() {
         // On clicking on the close button in the popup
         LeanTween.scale(movesCountPanel, Vector3.zero, 0.2f);
-        LeanTween.delayedCall(movesCountPanel, 0.3f, () => movesCountPanel.SetActive(false));
-        
+        LeanTween.delayedCall(movesCountPanel, 0.3f, () => movesCountPanel.SetActive(false));        
     }
 
     public void TestMode()
@@ -76,5 +76,16 @@ public class MainMenuController : MonoBehaviour {
     {
         inventoryPanel.SetActive(true);
         LeanTween.scale(inventoryPanel, Vector3.one, 0.2f);
+    }
+
+    public void HideInventoryPanel()
+    {
+        LeanTween.scale(inventoryPanel, Vector3.zero, 0.2f);
+        LeanTween.delayedCall(inventoryPanel, 0.3f, 
+            () => 
+            {
+                inventoryPanel.SetActive(false);
+                SceneManager.LoadSceneAsync("Gameplay");
+        });
     }
 }

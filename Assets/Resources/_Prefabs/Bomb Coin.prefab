@@ -232,7 +232,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: aecdb51736165344d9ee30babea920dd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  coinInNeutralZone: 0
   coinStopped: 0
 --- !u!114 &114373146760555806
 MonoBehaviour:
@@ -279,6 +278,9 @@ MonoBehaviour:
   isMonkCoin: 0
   isBomb: 0
   CoinType: Bomb
+  scoreValue: 0
+  coinInNeutralZone: 0
+  stopState: 1
 --- !u!212 &212499860434745012
 SpriteRenderer:
   m_ObjectHideFlags: 1
@@ -312,7 +314,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 0
+  m_SortingOrder: 10
   m_Sprite: {fileID: 21300000, guid: 49ec4a8f11993f540bb7dcce98ce1454, type: 3}
   m_Color: {r: 0.078431375, g: 0.427451, b: 0.7686275, a: 1}
   m_FlipX: 0

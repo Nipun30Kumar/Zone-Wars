@@ -18,15 +18,5 @@ public class CoinPositionChecker : MonoBehaviour {
         coinRigidBody = this.GetComponent<Rigidbody2D>();
         coin = this.GetComponent<Coin>();
     }
-	
-	void Update()
-    {
-        // CHECKING WHEN THE VELOCITY OF THE COIN BECOMES ZERO.
 
-        if(this.GetComponent<Rigidbody2D>().velocity.sqrMagnitude == 0f && !GameplayController.allCoinsStopped && !coinStopped)
-        {
-            coinStopped = true;
-            ScoreManager.counter++;
-        }
-    }
 }

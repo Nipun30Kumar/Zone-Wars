@@ -22,10 +22,12 @@ public class InventoryPanelManager : MonoBehaviour {
     public int playerID;
 
     private bool selectionMade = false;
+    MainMenuController menuController;
 
     void Awake()
     {
         playerID = 1;
+        menuController = FindObjectOfType<MainMenuController>();
     }
 
 	void Start () {
@@ -115,7 +117,7 @@ public class InventoryPanelManager : MonoBehaviour {
             }
 
             playerID = 1;
-            SceneManager.LoadSceneAsync("Gameplay");
+            menuController.HideInventoryPanel();            
         }
         for (int i = 0; i < deckCards.Count; i++)
         {

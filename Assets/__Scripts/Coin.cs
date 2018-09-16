@@ -12,7 +12,8 @@ public class Coin : MonoBehaviour {
     public string CoinType;
     public int scoreValue;
     public bool coinInNeutralZone = false;
-    private bool stopState = true;
+    public bool stopState = true;
+    private bool incrementCount = false;
 
     Transform ownZone;
     GameplayController gameplayController;
@@ -39,6 +40,7 @@ public class Coin : MonoBehaviour {
 
     void Update()
     {
+        #region -- COIN POSITION CHECKS --
         if (player1Coin)
         {
             Debug.Log("Player 1 coin");
@@ -77,6 +79,32 @@ public class Coin : MonoBehaviour {
         {
             Debug.Log("None of the players are active !!!");
         }
+        #endregion
+
+        #region -- COIN MOVEMENT STATE CHECKS --
+
+        if (this.GetComponent<Rigidbody2D>().velocity.magnitude > 0.1f)
+        {
+            Debug.Log("Coin has been launched");
+            stopState = false;
+            GameplayController.playerTurnStarted = true;
+        }
+
+        if ((this.GetComponent<Rigidbody2D>().velocity.magnitude <= 0.1f) && !GameplayController.modeAI && !stopState)
+        {
+            Debug.Log("Coin velocity becomes 0");
+            stopState = true;            
+            GameplayController.playerTurnEnded = true;
+        }
+
+        if ((this.GetComponent<Rigidbody2D>().velocity.magnitude <= 0.1f) && GameplayController.modeAI && GameplayController.player2Active && GameplayController.playerSwipeStarted)
+        {
+            Debug.Log("AI has finished his move" + this.GetComponent<Rigidbody2D>().velocity.magnitude);
+            GameplayController.playerTurnEnded = true;
+            GameplayController.playerTurnStarted = false;
+        }
+
+        #endregion
     }
-	
+
 }

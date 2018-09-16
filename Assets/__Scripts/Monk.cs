@@ -80,7 +80,7 @@ public class Monk : MonoBehaviour {
 
         yield return new WaitForSeconds(2f);
         // All coins converted. Destroy the monk coin accompanied with a PFX. Return control to gameplay controller.
-
+        Debug.Log("All coins converted in the region.");
         gameplayController.converting = false;
     }
 }

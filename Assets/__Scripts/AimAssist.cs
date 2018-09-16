@@ -11,23 +11,27 @@ public class AimAssist : MonoBehaviour {
     public float maximumPower;
     public float maxArrowLength;
     public float minArrowLength;
-    public bool reset = false;
 
     public GameObject arrow;
     public GameObject objectInMotion;
-    public Button resetButton;
     public Button launchButton;
 
     private bool settingAngle = false;
+    private bool aboutToFire = false;
     private float angle;
     private float power;
     private Vector3 velocity; 
+
+    void OnEnable()
+    {
+        aboutToFire = false;
+        ChangeLaunchButtonState(false);
+    }
 
     void Start()
     {
         minimumPower =  objectInMotion.GetComponent<Coin>().minimumPower;
         maximumPower = objectInMotion.GetComponent<Coin>().maximumPower;
-        ChangeResetButtonState(false);
     }
 	
 	void Update () {
@@ -40,10 +44,9 @@ public class AimAssist : MonoBehaviour {
         angle = Mathf.Atan2(mouse_pos.y, mouse_pos.x) * Mathf.Rad2Deg;
         //Debug.Log("Angle : " + angle);
 
-        if ((Input.GetMouseButtonDown(0) || (Input.GetMouseButtonDown(0) && reset)) && resetButton.gameObject.activeSelf == false)
+        if (Input.GetMouseButtonDown(0) && !aboutToFire)
         {
             settingAngle = true;
-            reset = false;
         }
 
         //ROTATION OF AIM LINE
@@ -68,13 +71,13 @@ public class AimAssist : MonoBehaviour {
         if (arrow.activeSelf == true && Input.GetMouseButtonUp(0) && settingAngle)
         {
             //Debug.Log("Touch Lifted , angle is set !!");
+            aboutToFire = true;
             Vector2 lengthVector = arrow.GetComponent<SpriteRenderer>().size;
             settingAngle = false;
             float tempSize = lengthVector.x;
             arrow.GetComponent<Animation>().Stop();
             lengthVector = new Vector2(tempSize, 0.4f);
-            ChangeLaunchButtonState(true);
-            //ChangeResetButtonState(true);
+            
 
             // Direction Calculations
             Vector3 startPos = this.transform.position;
@@ -87,36 +90,23 @@ public class AimAssist : MonoBehaviour {
             //Debug.Log("Power : " + power);
 
             velocity = (transform.rotation * launchDirection).normalized * power;
+            ChangeLaunchButtonState(true);
         }             
 	}
 
-    public void ResetAngleButton()
-    {
-        // Allow user to reset the angle if they press on the coin.
-        reset = true;
-
-        // If the user presses the reset button, turn the interactable off after the press.
-        arrow.SetActive(false);
-        arrow.GetComponent<Animation>().Play();
-        //ChangeResetButtonState(false);
-    }
-
     public void Launch()
     {
+        Debug.Log("LAUNCH PRESSED");
         //Function to be binded to an invisible button that only exists in the play area.
         arrow.SetActive(false);
         ChangeLaunchButtonState(false);
-        //ChangeResetButtonState(false);
+
         if(objectInMotion != null)
         objectInMotion.GetComponent<Rigidbody2D>().velocity = velocity;
 
-        objectInMotion = null;
-    }
-
-    private void ChangeResetButtonState(bool state)
-    {
-        resetButton.interactable = state;
-        resetButton.gameObject.SetActive(state);
+        // THE COIN HAS BEEN LAUNCHED. HENCE SETTING THE GAMEPLAY CONTROLLER BOOL TO TRUE.
+        GameplayController.currentCoinLaunched = true;
+        //objectInMotion = null;
     }
 
     private void ChangeLaunchButtonState(bool state)

@@ -212,7 +212,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: aecdb51736165344d9ee30babea920dd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  coinInNeutralZone: 0
   coinStopped: 0
 --- !u!114 &114903826013143104
 MonoBehaviour:
@@ -233,6 +232,8 @@ MonoBehaviour:
   isBomb: 0
   CoinType: Teleport
   scoreValue: 0
+  coinInNeutralZone: 0
+  stopState: 1
 --- !u!212 &212697623607309318
 SpriteRenderer:
   m_ObjectHideFlags: 1
@@ -266,7 +267,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 0
+  m_SortingOrder: 10
   m_Sprite: {fileID: 21300000, guid: 95c8e6a0d4ccd9941a22cbec5fe6e217, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0

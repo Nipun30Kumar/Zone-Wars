@@ -8,9 +8,8 @@ public class NeutralZone : MonoBehaviour {
     Coin coin;
 
 	// Use this for initialization
-	void Start () {
+	void Awake () {
         gameplayController = FindObjectOfType <GameplayController>();
-        coin = this.GetComponent<Coin>();
     }
 	
 	public void OnTriggerEnter2D(Collider2D collider)
@@ -22,14 +21,14 @@ public class NeutralZone : MonoBehaviour {
 
             if (coinTrait.player1Coin)
             {
-                coin.coinInNeutralZone = true;
+                coinTrait.coinInNeutralZone = true;
                 Debug.Log("Increasing player 1's score");
                 gameplayController.neutralZoneScorePL1 += 3;
                 Debug.Log("Player 1 score : " + gameplayController.scorePL1.ToString());
             }
             else if (coinTrait.player2Coin)
             {
-                coin.coinInNeutralZone = true;
+                coinTrait.coinInNeutralZone = true;
                 Debug.Log("Increasing player 2's score");
                 gameplayController.neutralZoneScorePL2 += 3;
             }
@@ -38,7 +37,7 @@ public class NeutralZone : MonoBehaviour {
                 Debug.Log("Unknown object has entered the neutral zone !!");
             }
         }
-        gameplayController.UpdateHUD();
+        //gameplayController.UpdateHUD();
     }
 
     public void OnTriggerExit2D(Collider2D collider)
@@ -49,12 +48,12 @@ public class NeutralZone : MonoBehaviour {
             CoinPositionChecker coinPosition = collider.gameObject.GetComponent<CoinPositionChecker>();
             if (coinTrait.player1Coin)
             {
-                coin.coinInNeutralZone = false;
+                coinTrait.coinInNeutralZone = false;
                 gameplayController.neutralZoneScorePL1 -= 3;
             }
             else if (coinTrait.player2Coin)
             {
-                coin.coinInNeutralZone = false;
+                coinTrait.coinInNeutralZone = false;
                 gameplayController.neutralZoneScorePL2 -= 3;
             }
             else
@@ -62,6 +61,6 @@ public class NeutralZone : MonoBehaviour {
                 Debug.Log("Unknown object has left the neutral zone !!");
             }
         }
-        gameplayController.UpdateHUD();
+        //gameplayController.UpdateHUD();
     }
 }
