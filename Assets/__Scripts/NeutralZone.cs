@@ -17,7 +17,6 @@ public class NeutralZone : MonoBehaviour {
         if(collider.tag == "Coin")
         {
             Coin coinTrait = collider.gameObject.GetComponent<Coin>();
-            CoinPositionChecker coinPosition = collider.gameObject.GetComponent<CoinPositionChecker>();
 
             if (coinTrait.player1Coin)
             {
@@ -45,7 +44,7 @@ public class NeutralZone : MonoBehaviour {
         if (collider.tag == "Coin")
         {
             Coin coinTrait = collider.gameObject.GetComponent<Coin>();
-            CoinPositionChecker coinPosition = collider.gameObject.GetComponent<CoinPositionChecker>();
+
             if (coinTrait.player1Coin)
             {
                 coinTrait.coinInNeutralZone = false;
