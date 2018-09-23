@@ -972,7 +972,7 @@ GameObject:
   - component: {fileID: 417328086}
   m_Layer: 0
   m_Name: Left Wall Boundary
-  m_TagString: Untagged
+  m_TagString: Wall
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -1953,7 +1953,7 @@ GameObject:
   - component: {fileID: 676617445}
   m_Layer: 0
   m_Name: Right Wall Boundary
-  m_TagString: Untagged
+  m_TagString: Wall
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -2052,7 +2052,7 @@ GameObject:
   - component: {fileID: 694030546}
   m_Layer: 0
   m_Name: Bottom Boundary
-  m_TagString: Untagged
+  m_TagString: Wall
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -4369,7 +4369,7 @@ Canvas:
   m_OverrideSorting: 0
   m_OverridePixelPerfect: 0
   m_SortingBucketNormalizedSize: 0
-  m_AdditionalShaderChannelsFlag: 7
+  m_AdditionalShaderChannelsFlag: 31
   m_SortingLayerID: 0
   m_SortingOrder: 0
   m_TargetDisplay: 0
@@ -5525,7 +5525,7 @@ GameObject:
   - component: {fileID: 1682702145}
   m_Layer: 0
   m_Name: Top Boundary
-  m_TagString: Untagged
+  m_TagString: Wall
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -5688,7 +5688,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1869756939}
+      - m_Target: {fileID: 0}
         m_MethodName: ReloadLevel
         m_Mode: 1
         m_Arguments:
@@ -5905,20 +5905,17 @@ MonoBehaviour:
   m_GameObject: {fileID: 1869756937}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a41199b92f5d2bc4e910f08eede0e128, type: 3}
+  m_Script: {fileID: 11500000, guid: ad53ed9eef45c8e49a6e273a12a1599c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   players:
   - {fileID: 372835656}
   - {fileID: 755872179}
-  gamestate: 0
   playerSpawnPos:
   - {fileID: 930286674}
   - {fileID: 524863716}
-  playerOwnZones:
-  - {fileID: 0}
-  - {fileID: 0}
-  scores: 0000000000000000
+  playerOwnZones: []
+  scores: 
   neutralZone: {fileID: 0}
   baseCoinPrefab: {fileID: 114605849297219518, guid: 8830038fcfdb85b438818de3f50079af,
     type: 2}
