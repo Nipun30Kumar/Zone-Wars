@@ -14,8 +14,7 @@ public class GameplayControllerV2 : MonoBehaviour {
     public static int TurnCount;
     public static GameplayControllerV2 Instance;
     [SerializeField] Player[] players;
-
-    [SerializeField] Gamestate gamestate;
+    
     [SerializeField] Transform[] playerSpawnPos;
     [SerializeField] BoxCollider2D[] playerOwnZones;
     [SerializeField] int[] scores;

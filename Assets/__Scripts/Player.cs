@@ -41,7 +41,7 @@ public class Player : MonoBehaviour {
             }
             
             angle = Mathf.Atan2(mouse_pos.y, mouse_pos.x) * Mathf.Rad2Deg;
-            var clampedAngle = Mathf.Clamp(angle, GameplayController.MINIMUM_AIM_ANGLE, GameplayController.MAXIMUM_AIM_ANGLE);
+            var clampedAngle = Mathf.Clamp(angle, GameplayControllerV2.MINIMUM_AIM_ANGLE, GameplayControllerV2.MAXIMUM_AIM_ANGLE);
             //this will help with sudden angle change
             float angleDiff = Mathf.Abs(clampedAngle - lastAngle);
             if (angleDiff >= 90) {
